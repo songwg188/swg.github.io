@@ -1,97 +1,63 @@
-<!DOCTYPE html>
-<html>
-  <head>
-    <title>Custom Street View panorama tiles</title>
-    <meta name="viewport" content="initial-scale=1.0">
-    <meta charset="utf-8">
-    <style>
-      html, body {
-        height: 100%;
-        margin: 0;
-        padding: 0;
-      }
-      #street-view {
-        height: 100%;
-      }
-    </style>
-  </head>
-  <body>
-    <div id="street-view"></div>
-    <script>
+---
+layout: default
+menu: home
+css: ['index.css', 'sidebar-popular-repo.css']
+---
+<section class="jumbotron">
+    <div class="container">
+        <h1>{{ site.title }}</h1>
+        <div id="jumbotron-meta-info">
+            <span class="meta-info">
+                <span class="octicon octicon-location"></span>
+                {{ site.location }}
+            </span>
+            <span class="meta-info hvr-grow">
+                <span class="octicon octicon-organization"></span>
+                <a href="{{ site.company_url }}" target="_blank">{{ site.company }}</a>
+            </span>
+            <span class="meta-info hvr-grow">
+                <span class="octicon octicon-mark-github"></span>
+                <a href="{{ site.github_url }}" target="_blank">@{{ site.name }}</a>
+            </span>
+        </div>
+    </div>
+</section>
+<section class="content container">
 
-var panorama;
+    <div class="row">
 
-// StreetViewPanoramaData of a panorama just outside the Google Sydney office.
-var outsideGoogle;
+        <!-- Post List -->
+        <div class="col-md-8">
 
-// StreetViewPanoramaData for a custom panorama: the Google Sydney reception.
-function getReceptionPanoramaData() {
-  return {
-    location: {
-      pano: 'reception',  // The ID for this custom panorama.
-      description: 'Google Sydney - Reception',
-      latLng: new google.maps.LatLng(40.771689, -73.959193)
-    },
-    links: [{
-      heading: 195,
-      description: 'Exit',
-      pano: outsideGoogle.location.pano
-    }],
-    copyright: 'Imagery (c) 2010 Google',
-    tiles: {
-      tileSize: new google.maps.Size(1024, 512),
-      worldSize: new google.maps.Size(2048, 1024),
-      centerHeading: 105,
-      getTileUrl: function(pano, zoom, tileX, tileY) {
-        return 'images/' +
-            'panoReception1024-' + zoom + '-' + tileX + '-' + tileY + '.jpg';
-      }
-    }
-  };
-}
+            <ol class="post-list">
+                {% for post in paginator.posts %}
+                <li class="post-list-item">
+                    <h2 class="post-list-title">
+                        <a class="hvr-underline-from-center" href="{{ site.url }}{{ post.url }}">{{ post.title }}</a>
+                    </h2>
+                    <p class="post-list-description">
+                        {{ post.excerpt | strip_html | strip }}
+                    </p>
+                    <p class="post-list-meta">
+                        <span class="octicon octicon-calendar"></span> {{ post.date | date: "%Y/%m/%d" }}
+                    </p>
+                </li>
+                {% endfor %}
+            </ol>
 
-function initPanorama() {
-  panorama = new google.maps.StreetViewPanorama(
-      document.getElementById('street-view'),
-      {
-        pano: outsideGoogle.location.pano,
-        // Register a provider for our custom panorama.
-        panoProvider: function(pano) {
-          if (pano === 'reception') {
-            return getReceptionPanoramaData();
-          }
-        }
-      });
+            <!-- Pagination -->
+            {% include pagination.html %}
 
-  // Add a link to our custom panorama from outside the Google Sydney office.
-  panorama.addListener('links_changed', function() {
-    if (panorama.getPano() === outsideGoogle.location.pano) {
-      panorama.getLinks().push({
-        description: 'Google Sydney',
-        heading: 25,
-        pano: 'reception'
-      });
-    }
-  });
-}
+            <!-- Comments -->
+            {% include disqus-comments.html %}
 
-function initialize() {
-  // Use the Street View service to find a pano ID on Pirrama Rd, outside the
-  // Google office.
-  var streetviewService = new google.maps.StreetViewService;
-  streetviewService.getPanorama(
-      {location: {lat: 40.771689, lng: -73.959193}},
-      function(result, status) {
-        if (status === google.maps.StreetViewStatus.OK) {
-          outsideGoogle = result;
-          initPanorama();
-        }
-      });
-}
+        </div>
 
-    </script>
-    <script async defer
-        src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDcQwTWI3xHd6UP6StlK9ef1ArLHlETBq4&signed_in=true&callback=initialize">
-    </script>
-  </body>
-</html>
+        <div class="col-md-4">
+            {% include sidebar-popular-repo.html %}
+        </div>
+
+    </div>
+
+</section>
+
